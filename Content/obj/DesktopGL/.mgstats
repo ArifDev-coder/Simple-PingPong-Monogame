@@ -1,0 +1,3 @@
+Source File,Dest File,Processor Type,Content Type,Source File Size,Dest File Size,Build Seconds
+"/home/ArifDev/DevDir/Project/PingPongMonogame/Content/texture/ball.png","/home/ArifDev/DevDir/Project/PingPongMonogame/Content/bin/DesktopGL/texture/ball.xnb","TextureProcessor","Texture2DContent",254,1529,0.2640946
+"/home/ArifDev/DevDir/Project/PingPongMonogame/Content/texture/bet.png","/home/ArifDev/DevDir/Project/PingPongMonogame/Content/bin/DesktopGL/texture/bet.xnb","TextureProcessor","Texture2DContent",178,1749,0.0027936
