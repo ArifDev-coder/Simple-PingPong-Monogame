@@ -1,0 +1,17 @@
+**/bin/
+**/obj/
+
+.vs/
+.vscode/
+*.user
+*.suo
+*.userprefs
+
+**/Content/bin/
+**/Content/obj/
+
+.DS_Store
+Thumbs.db
+.fake
+
+.mgstats
