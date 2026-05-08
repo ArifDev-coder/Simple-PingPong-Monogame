@@ -11,7 +11,8 @@ public class Game1 : Game
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
 
-    
+    private Texture2D _ball;
+    private Texture2D _bet;
 
     public Game1()
     {
@@ -21,16 +22,16 @@ public class Game1 : Game
         }
 
         slime_instance = this;
-        
+
         _graphics = new GraphicsDeviceManager(this)
         {
             PreferredBackBufferWidth = 1280,
             PreferredBackBufferHeight = 720,
             IsFullScreen = false
         };
-        
+
         Content.RootDirectory = "Content";
-        
+
         Window.Title = "PingPong Game";
 
         IsMouseVisible = true;
@@ -48,7 +49,8 @@ public class Game1 : Game
     {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
 
-        // TODO: use this.Content to load your game content here
+        _ball = Content.Load<Texture2D>("texture/ball");
+        _bet = Content.Load<Texture2D>("texture/bet");
     }
 
     protected override void Update(GameTime gameTime)
@@ -65,7 +67,12 @@ public class Game1 : Game
     {
         GraphicsDevice.Clear(Color.CornflowerBlue);
 
-        // TODO: Add your drawing code here
+        _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+
+        _spriteBatch.Draw(_ball, Vector2.Zero, null, Color.White, 0.0f, Vector2.Zero, 4.0f, SpriteEffects.None, 0.0f);
+        _spriteBatch.Draw(_bet, new Vector2(0, _bet.Height + _ball.Height + 10), null, Color.White, 0.0f, Vector2.Zero, 4.0f, SpriteEffects.None, 0.0f);
+
+        _spriteBatch.End();
 
         base.Draw(gameTime);
     }
