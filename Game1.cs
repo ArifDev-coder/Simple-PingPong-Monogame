@@ -13,6 +13,9 @@ public class Game1 : Game
 
     private Texture2D _ball;
     private Texture2D _bet;
+    private Vector2 _betPosition;
+
+    private int BAT_SPEED = 10;
 
     public Game1()
     {
@@ -39,8 +42,7 @@ public class Game1 : Game
 
     protected override void Initialize()
     {
-        // TODO: Add your initialization logic here
-
+        _betPosition = new Vector2(10, Window.ClientBounds.Height * 0.5f);
 
         base.Initialize();
     }
@@ -55,10 +57,20 @@ public class Game1 : Game
 
     protected override void Update(GameTime gameTime)
     {
-        if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+        GamePadState gamePad = GamePad.GetState(PlayerIndex.One);
+        KeyboardState keyboardState = Keyboard.GetState();
+
+        if (gamePad.Buttons.Back == ButtonState.Pressed || keyboardState.IsKeyDown(Keys.Escape))
             Exit();
 
-        // TODO: Add your update logic here
+        if (keyboardState.IsKeyDown(Keys.A) || keyboardState.IsKeyDown(Keys.W))
+        {
+            _betPosition.Y -= BAT_SPEED;
+        }
+        else if (keyboardState.IsKeyDown(Keys.D) || keyboardState.IsKeyDown(Keys.S))
+        {
+            _betPosition.Y += BAT_SPEED;
+        }
 
         base.Update(gameTime);
     }
@@ -69,8 +81,8 @@ public class Game1 : Game
 
         _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
 
-        _spriteBatch.Draw(_ball, Vector2.Zero, null, Color.White, 0.0f, Vector2.Zero, 4.0f, SpriteEffects.None, 0.0f);
-        _spriteBatch.Draw(_bet, new Vector2(0, _bet.Height + _ball.Height + 10), null, Color.White, 0.0f, Vector2.Zero, 4.0f, SpriteEffects.None, 0.0f);
+        // _spriteBatch.Draw(_ball, Vector2.Zero, null, Color.White, 0.0f, Vector2.Zero, 4.0f, SpriteEffects.None, 0.0f);
+        _spriteBatch.Draw(_bet, _betPosition, null, Color.White, 0.0f, Vector2.Zero, 4.0f, SpriteEffects.None, 0.0f);
 
         _spriteBatch.End();
 
