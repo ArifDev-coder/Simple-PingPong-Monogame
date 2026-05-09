@@ -1,4 +1,5 @@
 ﻿using System;
+using PingPongMonogame.Lib;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -11,13 +12,19 @@ public class Game1 : Game
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
 
+    private Rectangle _screenBounds;
+
     private Texture2D _ball;
+    private Vector2 _ballPosition;
+    private Circle _ballBounds;
+    private Vector2 _ballMove;
+    private float BALL_SPEED = 10f;
+    private float BALL_SCALE = 3f;
+
     private Texture2D _bet;
     private Vector2 _betPosition;
-
-
-    private float _betSpeed = 500f;
-    private float _betScale;
+    private float BET_SPEED = 500f;
+    private float BET_SCALE = 4f;
 
     public Game1()
     {
@@ -44,9 +51,20 @@ public class Game1 : Game
 
     protected override void Initialize()
     {
-        _betPosition = new Vector2(10, GraphicsDevice.PresentationParameters.BackBufferHeight - _bet.Height * _betScale * 0.5f);
-
         base.Initialize();
+
+        _betPosition = new Vector2(10, (GraphicsDevice.PresentationParameters.BackBufferHeight - _bet.Height * BET_SCALE) * 0.5f);
+
+        _ballPosition = new Vector2(GraphicsDevice.PresentationParameters.BackBufferWidth * .5f, GraphicsDevice.PresentationParameters.BackBufferHeight * .5f);
+
+        _screenBounds = new Rectangle(
+            0,
+            0,
+            GraphicsDevice.PresentationParameters.BackBufferWidth,
+            GraphicsDevice.PresentationParameters.BackBufferHeight
+        );
+
+        RandomBallMove();
     }
 
     protected override void LoadContent()
@@ -55,7 +73,6 @@ public class Game1 : Game
 
         _ball = Content.Load<Texture2D>("texture/ball");
         _bet = Content.Load<Texture2D>("texture/bet");
-        _betScale = 4f;
     }
 
     protected override void Update(GameTime gameTime)
@@ -69,16 +86,72 @@ public class Game1 : Game
 
         if (keyboardState.IsKeyDown(Keys.A) || keyboardState.IsKeyDown(Keys.W))
         {
-            _betPosition.Y -= _betSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+            _betPosition.Y -= BET_SPEED * (float)gameTime.ElapsedGameTime.TotalSeconds;
         }
         else if (keyboardState.IsKeyDown(Keys.D) || keyboardState.IsKeyDown(Keys.S))
         {
-            _betPosition.Y += _betSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+            _betPosition.Y += BET_SPEED * (float)gameTime.ElapsedGameTime.TotalSeconds;
         }
 
         _betPosition.Y = MathHelper.Clamp(_betPosition.Y, 0, GraphicsDevice.PresentationParameters.BackBufferHeight - _bet.Height * 4.0f);
 
+        BallCollision();
+
         base.Update(gameTime);
+    }
+
+    private void BallCollision()
+    {
+        Vector2 normal = Vector2.Zero;
+        Vector2 newBallPosition = _ballPosition + _ballMove;
+
+        _ballBounds = new(
+            (int)(newBallPosition.X + (_ball.Width * BALL_SCALE * 0.5f)),
+            (int)(newBallPosition.Y + (_ball.Height * BALL_SCALE * 0.5f)),
+            (int)(_ball.Width * BALL_SCALE * 0.5f)
+        );
+
+        if (_ballBounds.Left < _screenBounds.Left)
+        {
+            normal.X = Vector2.UnitX.X;
+            newBallPosition.X = _screenBounds.Left;
+        }
+        else if (_ballBounds.Right > _screenBounds.Right)
+        {
+            normal.X = -Vector2.UnitX.X;
+            newBallPosition.X = _screenBounds.Right - _ball.Width * BALL_SCALE;
+        }
+
+        if (_ballBounds.Top < _screenBounds.Top)
+        {
+            normal.Y = Vector2.UnitY.Y;
+            newBallPosition.Y = _screenBounds.Top;
+        }
+        else if (_ballBounds.Bottom > _screenBounds.Bottom)
+        {
+            normal.Y = -Vector2.UnitY.Y;
+            newBallPosition.Y = _screenBounds.Bottom - _ball.Height * BALL_SCALE;
+        }
+
+        if (normal != Vector2.Zero)
+        {
+            normal.Normalize();
+            _ballMove = Vector2.Reflect(_ballMove, normal);
+        }
+
+        _ballPosition = newBallPosition;
+
+    }
+
+    private void RandomBallMove()
+    {
+        float angle = (float)(Random.Shared.NextDouble() * Math.PI * 2);
+
+        float x = (float)Math.Cos(angle);
+        float y = (float)Math.Sin(angle);
+        Vector2 direction = new Vector2(x, y);
+
+        _ballMove = direction * BALL_SPEED;
     }
 
     protected override void Draw(GameTime gameTime)
@@ -87,8 +160,8 @@ public class Game1 : Game
 
         _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
 
-        // _spriteBatch.Draw(_ball, Vector2.Zero, null, Color.White, 0.0f, Vector2.Zero, 4.0f, SpriteEffects.None, 0.0f);
-        _spriteBatch.Draw(_bet, _betPosition, null, Color.White, 0.0f, Vector2.Zero, _betScale, SpriteEffects.None, 0.0f);
+        _spriteBatch.Draw(_ball, _ballPosition, null, Color.White, 0.0f, Vector2.Zero, BALL_SCALE, SpriteEffects.None, 0.0f);
+        _spriteBatch.Draw(_bet, _betPosition, null, Color.White, 0.0f, Vector2.Zero, BET_SCALE, SpriteEffects.None, 0.0f);
 
         _spriteBatch.End();
 
