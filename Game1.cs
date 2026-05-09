@@ -23,6 +23,7 @@ public class Game1 : Game
 
     private Texture2D _bet;
     private Vector2 _betPosition;
+    private Rectangle _betBounds;
     private float BET_SPEED = 500f;
     private float BET_SCALE = 4f;
 
@@ -95,20 +96,27 @@ public class Game1 : Game
 
         _betPosition.Y = MathHelper.Clamp(_betPosition.Y, 0, GraphicsDevice.PresentationParameters.BackBufferHeight - _bet.Height * 4.0f);
 
-        BallCollision();
+        CollisionCheck();
 
         base.Update(gameTime);
     }
 
-    private void BallCollision()
+    private void CollisionCheck()
     {
         Vector2 normal = Vector2.Zero;
         Vector2 newBallPosition = _ballPosition + _ballMove;
 
         _ballBounds = new(
-            (int)(newBallPosition.X + (_ball.Width * BALL_SCALE * 0.5f)),
-            (int)(newBallPosition.Y + (_ball.Height * BALL_SCALE * 0.5f)),
-            (int)(_ball.Width * BALL_SCALE * 0.5f)
+            (int)(newBallPosition.X + (_ball.Width * BALL_SCALE * .5f)),
+            (int)(newBallPosition.Y + (_ball.Height * BALL_SCALE * .5f)),
+            (int)(_ball.Width * BALL_SCALE * .5f)
+        );
+
+        _betBounds = new (
+            (int)_betPosition.X,
+            (int)_betPosition.Y,
+            _bet.Width * (int)BET_SCALE,
+            _bet.Height * (int)BET_SCALE
         );
 
         if (_ballBounds.Left < _screenBounds.Left)
