@@ -42,7 +42,7 @@ public class Game1 : Game
 
     protected override void Initialize()
     {
-        _betPosition = new Vector2(10, Window.ClientBounds.Height * 0.5f);
+        _betPosition = new Vector2(10, GraphicsDevice.PresentationParameters.BackBufferHeight * 0.5f);
 
         base.Initialize();
     }
@@ -63,6 +63,7 @@ public class Game1 : Game
         if (gamePad.Buttons.Back == ButtonState.Pressed || keyboardState.IsKeyDown(Keys.Escape))
             Exit();
 
+
         if (keyboardState.IsKeyDown(Keys.A) || keyboardState.IsKeyDown(Keys.W))
         {
             _betPosition.Y -= BAT_SPEED;
@@ -71,6 +72,8 @@ public class Game1 : Game
         {
             _betPosition.Y += BAT_SPEED;
         }
+
+        _betPosition.Y = MathHelper.Clamp(_betPosition.Y, 0, GraphicsDevice.PresentationParameters.BackBufferHeight - _bet.Height * 4.0f);
 
         base.Update(gameTime);
     }
