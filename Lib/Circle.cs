@@ -44,6 +44,18 @@ public readonly struct Circle : IEquatable<Circle>
         float distanceSquared = Vector2.DistanceSquared(this.Location.ToVector2(), other.Location.ToVector2());
         return distanceSquared < radiiSquared;
     }
+
+    public bool Intersects(Rectangle other)
+    {
+        float nearestX = MathHelper.Clamp(X, other.Left, other.Right);
+        float nearestY = MathHelper.Clamp(Y, other.Top, other.Bottom);
+
+        float dx = X - nearestX;
+        float dy = Y - nearestY;
+
+        return (dx * dx + dy * dy) < (Radius * Radius);
+    }
+
     public override readonly bool Equals(object obj) => obj is Circle other && Equals(other);
 
     public readonly bool Equals(Circle other) => this.X == other.X && this.Y == other.Y && this.Radius == other.Radius;

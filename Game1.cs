@@ -4,6 +4,9 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
+// DEBUG LIB
+using System.Diagnostics;
+
 namespace PingPongMonogame;
 
 public class Game1 : Game
@@ -21,11 +24,11 @@ public class Game1 : Game
     private float BALL_SPEED = 10f;
     private float BALL_SCALE = 3f;
 
-    private Texture2D _bet;
-    private Vector2 _betPosition;
-    private Rectangle _betBounds;
-    private float BET_SPEED = 500f;
-    private float BET_SCALE = 4f;
+    private Texture2D _paddle;
+    private Vector2 _paddlePosition;
+    private Rectangle _paddleBounds;
+    private float PADDLE_SPEED = 500f;
+    private float PADDLE_SCALE = 4f;
 
     public Game1()
     {
@@ -54,7 +57,7 @@ public class Game1 : Game
     {
         base.Initialize();
 
-        _betPosition = new Vector2(10, (GraphicsDevice.PresentationParameters.BackBufferHeight - _bet.Height * BET_SCALE) * 0.5f);
+        _paddlePosition = new Vector2(10, (GraphicsDevice.PresentationParameters.BackBufferHeight - _paddle.Height * PADDLE_SCALE) * 0.5f);
 
         _ballPosition = new Vector2(GraphicsDevice.PresentationParameters.BackBufferWidth * .5f, GraphicsDevice.PresentationParameters.BackBufferHeight * .5f);
 
@@ -73,7 +76,7 @@ public class Game1 : Game
         _spriteBatch = new SpriteBatch(GraphicsDevice);
 
         _ball = Content.Load<Texture2D>("texture/ball");
-        _bet = Content.Load<Texture2D>("texture/bet");
+        _paddle = Content.Load<Texture2D>("texture/bet");
     }
 
     protected override void Update(GameTime gameTime)
@@ -87,14 +90,14 @@ public class Game1 : Game
 
         if (keyboardState.IsKeyDown(Keys.A) || keyboardState.IsKeyDown(Keys.W))
         {
-            _betPosition.Y -= BET_SPEED * (float)gameTime.ElapsedGameTime.TotalSeconds;
+            _paddlePosition.Y -= PADDLE_SPEED * (float)gameTime.ElapsedGameTime.TotalSeconds;
         }
         else if (keyboardState.IsKeyDown(Keys.D) || keyboardState.IsKeyDown(Keys.S))
         {
-            _betPosition.Y += BET_SPEED * (float)gameTime.ElapsedGameTime.TotalSeconds;
+            _paddlePosition.Y += PADDLE_SPEED * (float)gameTime.ElapsedGameTime.TotalSeconds;
         }
 
-        _betPosition.Y = MathHelper.Clamp(_betPosition.Y, 0, GraphicsDevice.PresentationParameters.BackBufferHeight - _bet.Height * 4.0f);
+        _paddlePosition.Y = MathHelper.Clamp(_paddlePosition.Y, 0, GraphicsDevice.PresentationParameters.BackBufferHeight - _paddle.Height * 4.0f);
 
         CollisionCheck();
 
@@ -112,12 +115,18 @@ public class Game1 : Game
             (int)(_ball.Width * BALL_SCALE * .5f)
         );
 
-        _betBounds = new (
-            (int)_betPosition.X,
-            (int)_betPosition.Y,
-            _bet.Width * (int)BET_SCALE,
-            _bet.Height * (int)BET_SCALE
+        _paddleBounds = new(
+            (int)_paddlePosition.X,
+            (int)_paddlePosition.Y,
+            (int)(_paddle.Width * PADDLE_SCALE),
+            (int)(_paddle.Height * PADDLE_SCALE)
         );
+
+        if (_ballBounds.Intersects(_paddleBounds))
+        {
+            Debug.WriteLine("Ball has been collide with paddle");
+            Debug.WriteLine(_ballBounds.Intersects(_paddleBounds));
+        }
 
         if (_ballBounds.Left < _screenBounds.Left)
         {
@@ -169,7 +178,7 @@ public class Game1 : Game
         _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
 
         _spriteBatch.Draw(_ball, _ballPosition, null, Color.White, 0.0f, Vector2.Zero, BALL_SCALE, SpriteEffects.None, 0.0f);
-        _spriteBatch.Draw(_bet, _betPosition, null, Color.White, 0.0f, Vector2.Zero, BET_SCALE, SpriteEffects.None, 0.0f);
+        _spriteBatch.Draw(_paddle, _paddlePosition, null, Color.White, 0.0f, Vector2.Zero, PADDLE_SCALE, SpriteEffects.None, 0.0f);
 
         _spriteBatch.End();
 
