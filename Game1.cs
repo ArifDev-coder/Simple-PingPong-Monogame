@@ -11,7 +11,6 @@ namespace PingPongMonogame;
 
 public class Game1 : Game
 {
-    internal Game1 _gameInstance;
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
 
@@ -32,13 +31,6 @@ public class Game1 : Game
 
     public Game1()
     {
-        if (_gameInstance != null)
-        {
-            throw new InvalidOperationException($"Only a single Game can be created");
-        }
-
-        _gameInstance = this;
-
         _graphics = new GraphicsDeviceManager(this)
         {
             PreferredBackBufferWidth = 1280,
@@ -124,19 +116,54 @@ public class Game1 : Game
 
         if (_ballBounds.Intersects(_paddleBounds))
         {
-            Debug.WriteLine("Ball has been collide with paddle");
-            Debug.WriteLine(_ballBounds.Intersects(_paddleBounds));
+            float overlapLeft = _ballBounds.Right - _paddleBounds.Left;
+            float overlapRight = _paddleBounds.Right - _ballBounds.Left;
+            float overlapTop = _ballBounds.Bottom - _paddleBounds.Top;
+            float overlapBottom = _paddleBounds.Bottom - _ballBounds.Top;
+
+            float minOverlap = Math.Min(
+                Math.Min(overlapLeft, overlapRight),
+                Math.Min(overlapTop, overlapBottom)
+            );
+
+            if (minOverlap == overlapLeft)
+                normal.X = -Vector2.UnitX.X;
+            else if (minOverlap == overlapRight)
+                normal.X = Vector2.UnitX.X;
+            else if (minOverlap == overlapTop)
+                normal.Y = -Vector2.UnitY.Y;
+            else
+                normal.Y = Vector2.UnitY.Y;
+
+            normal.Normalize();
+            _ballMove = Vector2.Reflect(_ballMove, normal);
+
+            return;
         }
 
         if (_ballBounds.Left < _screenBounds.Left)
         {
-            normal.X = Vector2.UnitX.X;
-            newBallPosition.X = _screenBounds.Left;
+            newBallPosition = new Vector2(
+                GraphicsDevice.PresentationParameters.BackBufferWidth * .5f,
+                GraphicsDevice.PresentationParameters.BackBufferHeight * .5f
+            );
+
+            RandomBallMove();
+
+            _ballPosition = newBallPosition;
+            return;
         }
         else if (_ballBounds.Right > _screenBounds.Right)
         {
-            normal.X = -Vector2.UnitX.X;
-            newBallPosition.X = _screenBounds.Right - _ball.Width * BALL_SCALE;
+            newBallPosition = new Vector2(
+                GraphicsDevice.PresentationParameters.BackBufferWidth * .5f,
+                GraphicsDevice.PresentationParameters.BackBufferHeight * .5f
+            );
+
+            RandomBallMove();
+
+            _ballPosition = newBallPosition;
+            return;
         }
 
         if (_ballBounds.Top < _screenBounds.Top)
@@ -166,7 +193,7 @@ public class Game1 : Game
 
         float x = (float)Math.Cos(angle);
         float y = (float)Math.Sin(angle);
-        Vector2 direction = new Vector2(x, y);
+        Vector2 direction = new(x, y);
 
         _ballMove = direction * BALL_SPEED;
     }
