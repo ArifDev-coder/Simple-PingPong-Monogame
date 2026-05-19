@@ -23,11 +23,18 @@ public class Game1 : Game
     private float BALL_SPEED = 10f;
     private float BALL_SCALE = 3f;
 
-    private Texture2D _paddle;
-    private Vector2 _paddlePosition;
-    private Rectangle _paddleBounds;
-    private float PADDLE_SPEED = 500f;
-    private float PADDLE_SCALE = 4f;
+    // Player Paddle
+    private Texture2D _playerPaddle;
+    private Vector2 _playerPaddlePosition;
+    private Rectangle _playerPaddleBounds;
+    private float PLAYER_PADDLE_SPEED = 500f;
+    private float PLAYER_PADDLE_SCALE = 4f;
+
+    private Texture2D _enemyPaddle;
+    private Vector2 _enemyPaddlePosition;
+    private Rectangle _enemyPaddleBounds;
+    private float ENEMY_PADDLE_SPEED = 50000f;
+    private float ENEMY_PADDLE_SCALE = 4f;
 
     public Game1()
     {
@@ -49,7 +56,9 @@ public class Game1 : Game
     {
         base.Initialize();
 
-        _paddlePosition = new Vector2(10, (GraphicsDevice.PresentationParameters.BackBufferHeight - _paddle.Height * PADDLE_SCALE) * 0.5f);
+        _playerPaddlePosition = new Vector2(10, (GraphicsDevice.PresentationParameters.BackBufferHeight - _playerPaddle.Height * PLAYER_PADDLE_SCALE) * 0.5f);
+
+        _enemyPaddlePosition = new Vector2(GraphicsDevice.PresentationParameters.BackBufferWidth - (_enemyPaddle.Width * ENEMY_PADDLE_SCALE + 10), (GraphicsDevice.PresentationParameters.BackBufferHeight - _enemyPaddle.Height * ENEMY_PADDLE_SCALE) * 0.5f);
 
         _ballPosition = new Vector2(GraphicsDevice.PresentationParameters.BackBufferWidth * .5f, GraphicsDevice.PresentationParameters.BackBufferHeight * .5f);
 
@@ -68,7 +77,10 @@ public class Game1 : Game
         _spriteBatch = new SpriteBatch(GraphicsDevice);
 
         _ball = Content.Load<Texture2D>("texture/ball");
-        _paddle = Content.Load<Texture2D>("texture/bet");
+
+        _playerPaddle = Content.Load<Texture2D>("texture/bet");
+
+        _enemyPaddle = Content.Load<Texture2D>("texture/bet");
     }
 
     protected override void Update(GameTime gameTime)
@@ -82,14 +94,18 @@ public class Game1 : Game
 
         if (keyboardState.IsKeyDown(Keys.A) || keyboardState.IsKeyDown(Keys.W))
         {
-            _paddlePosition.Y -= PADDLE_SPEED * (float)gameTime.ElapsedGameTime.TotalSeconds;
+            _playerPaddlePosition.Y -= PLAYER_PADDLE_SPEED * (float)gameTime.ElapsedGameTime.TotalSeconds;
         }
         else if (keyboardState.IsKeyDown(Keys.D) || keyboardState.IsKeyDown(Keys.S))
         {
-            _paddlePosition.Y += PADDLE_SPEED * (float)gameTime.ElapsedGameTime.TotalSeconds;
+            _playerPaddlePosition.Y += PLAYER_PADDLE_SPEED * (float)gameTime.ElapsedGameTime.TotalSeconds;
         }
 
-        _paddlePosition.Y = MathHelper.Clamp(_paddlePosition.Y, 0, GraphicsDevice.PresentationParameters.BackBufferHeight - _paddle.Height * 4.0f);
+        _playerPaddlePosition.Y = MathHelper.Clamp(_playerPaddlePosition.Y, 0, GraphicsDevice.PresentationParameters.BackBufferHeight - _playerPaddle.Height * ENEMY_PADDLE_SCALE);
+
+        _enemyPaddlePosition.Y = _ballPosition.Y;
+
+        _enemyPaddlePosition.Y = MathHelper.Clamp(_enemyPaddlePosition.Y, 0, GraphicsDevice.PresentationParameters.BackBufferHeight - _enemyPaddle.Height * ENEMY_PADDLE_SCALE);
 
         CollisionCheck();
 
@@ -107,19 +123,53 @@ public class Game1 : Game
             (int)(_ball.Width * BALL_SCALE * .5f)
         );
 
-        _paddleBounds = new(
-            (int)_paddlePosition.X,
-            (int)_paddlePosition.Y,
-            (int)(_paddle.Width * PADDLE_SCALE),
-            (int)(_paddle.Height * PADDLE_SCALE)
+        _playerPaddleBounds = new(
+            (int)_playerPaddlePosition.X,
+            (int)_playerPaddlePosition.Y,
+            (int)(_playerPaddle.Width * PLAYER_PADDLE_SCALE),
+            (int)(_playerPaddle.Height * PLAYER_PADDLE_SCALE)
         );
 
-        if (_ballBounds.Intersects(_paddleBounds))
+        _enemyPaddleBounds = new(
+            (int)_enemyPaddlePosition.X,
+            (int)_enemyPaddlePosition.Y,
+            (int)(_enemyPaddle.Width * ENEMY_PADDLE_SCALE),
+            (int)(_playerPaddle.Height * PLAYER_PADDLE_SCALE)
+        );
+
+        if (_ballBounds.Intersects(_enemyPaddleBounds))
         {
-            float overlapLeft = _ballBounds.Right - _paddleBounds.Left;
-            float overlapRight = _paddleBounds.Right - _ballBounds.Left;
-            float overlapTop = _ballBounds.Bottom - _paddleBounds.Top;
-            float overlapBottom = _paddleBounds.Bottom - _ballBounds.Top;
+            float overlapLeft = _ballBounds.Right - _enemyPaddleBounds.Left;
+            float overlapRight = _enemyPaddleBounds.Right - _ballBounds.Left;
+            float overlapTop = _ballBounds.Bottom - _enemyPaddleBounds.Top;
+            float overlapBottom = _enemyPaddleBounds.Bottom - _ballBounds.Top;
+
+            float minOverlap = Math.Min(
+                Math.Min(overlapLeft, overlapRight),
+                Math.Min(overlapTop, overlapBottom)
+            );
+
+            if (minOverlap == overlapLeft)
+                normal.X = -Vector2.UnitX.X;
+            else if (minOverlap == overlapRight)
+                normal.X = Vector2.UnitX.X;
+            else if (minOverlap == overlapTop)
+                normal.Y = -Vector2.UnitY.Y;
+            else
+                normal.Y = Vector2.UnitY.Y;
+
+            normal.Normalize();
+            _ballMove = Vector2.Reflect(_ballMove, normal);
+
+            return;
+        }
+
+        if (_ballBounds.Intersects(_playerPaddleBounds))
+        {
+            float overlapLeft = _ballBounds.Right - _playerPaddleBounds.Left;
+            float overlapRight = _playerPaddleBounds.Right - _ballBounds.Left;
+            float overlapTop = _ballBounds.Bottom - _playerPaddleBounds.Top;
+            float overlapBottom = _playerPaddleBounds.Bottom - _ballBounds.Top;
 
             float minOverlap = Math.Min(
                 Math.Min(overlapLeft, overlapRight),
@@ -205,7 +255,10 @@ public class Game1 : Game
         _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
 
         _spriteBatch.Draw(_ball, _ballPosition, null, Color.White, 0.0f, Vector2.Zero, BALL_SCALE, SpriteEffects.None, 0.0f);
-        _spriteBatch.Draw(_paddle, _paddlePosition, null, Color.White, 0.0f, Vector2.Zero, PADDLE_SCALE, SpriteEffects.None, 0.0f);
+
+        _spriteBatch.Draw(_playerPaddle, _playerPaddlePosition, null, Color.White, 0.0f, Vector2.Zero, PLAYER_PADDLE_SCALE, SpriteEffects.None, 0.0f);
+
+        _spriteBatch.Draw(_enemyPaddle, _enemyPaddlePosition, null, Color.White, 0.0f, Vector2.Zero, ENEMY_PADDLE_SCALE, SpriteEffects.None, 0.0f);
 
         _spriteBatch.End();
 
