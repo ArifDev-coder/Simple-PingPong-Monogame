@@ -109,9 +109,8 @@ public class Game1 : Game
     }
 
     private void EnemyAI(GameTime gameTime) 
-    {
-        
-        _playerPaddlePosition.Y = MathHelper.Clamp(_playerPaddlePosition.Y, 0, GraphicsDevice.PresentationParameters.BackBufferHeight - _playerPaddle.Height * ENEMY_PADDLE_SCALE);
+    {   
+        _playerPaddlePosition.Y = MathHelper.Clamp(_enemyPaddlePosition.Y, 0, GraphicsDevice.PresentationParameters.BackBufferHeight - _enemyPaddle.Height * ENEMY_PADDLE_SCALE);
 
         if (_ballPosition.Y > _enemyPaddlePosition.Y)
         {
