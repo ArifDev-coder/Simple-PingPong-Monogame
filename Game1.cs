@@ -101,14 +101,14 @@ public class Game1 : Game
             _playerPaddlePosition.Y += PLAYER_PADDLE_SPEED;
         }
 
-        EnemyAI(gameTime);
+        EnemyAI();
 
         CollisionCheck();
 
         base.Update(gameTime);
     }
 
-    private void EnemyAI(GameTime gameTime) 
+    private void EnemyAI() 
     {   
         _playerPaddlePosition.Y = MathHelper.Clamp(_enemyPaddlePosition.Y, 0, GraphicsDevice.PresentationParameters.BackBufferHeight - _enemyPaddle.Height * ENEMY_PADDLE_SCALE);
 
