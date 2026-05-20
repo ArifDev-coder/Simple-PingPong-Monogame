@@ -146,7 +146,7 @@ public class Game1 : Game
             (int)_enemyPaddlePosition.X,
             (int)_enemyPaddlePosition.Y,
             (int)(_enemyPaddle.Width * ENEMY_PADDLE_SCALE),
-            (int)(_playerPaddle.Height * PLAYER_PADDLE_SCALE)
+            (int)(_enemyPaddle.Height * ENEMY_PADDLE_SCALE)
         );
 
         if (_ballBounds.Intersects(_enemyPaddleBounds))
