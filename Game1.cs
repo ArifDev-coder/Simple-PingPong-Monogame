@@ -33,7 +33,7 @@ public class Game1 : Game
     private Texture2D _enemyPaddle;
     private Vector2 _enemyPaddlePosition;
     private Rectangle _enemyPaddleBounds;
-    private float ENEMY_PADDLE_SPEED = 1f;
+    private float ENEMY_PADDLE_SPEED = 500f;
     private float ENEMY_PADDLE_SCALE = 4f;
 
     public Game1()
@@ -101,25 +101,25 @@ public class Game1 : Game
             _playerPaddlePosition.Y += PLAYER_PADDLE_SPEED * (float)gameTime.ElapsedGameTime.TotalSeconds;
         }
 
-        EnemyAI();
+        EnemyAI(gameTime);
 
         CollisionCheck();
 
         base.Update(gameTime);
     }
 
-    private void EnemyAI() 
+    private void EnemyAI(GameTime gameTime) 
     {
         
         _playerPaddlePosition.Y = MathHelper.Clamp(_playerPaddlePosition.Y, 0, GraphicsDevice.PresentationParameters.BackBufferHeight - _playerPaddle.Height * ENEMY_PADDLE_SCALE);
 
         if (_ballPosition.Y > _enemyPaddlePosition.Y)
         {
-            _enemyPaddlePosition.Y += ENEMY_PADDLE_SPEED;
+            _enemyPaddlePosition.Y += ENEMY_PADDLE_SPEED * (float)gameTime.ElapsedGameTime.TotalSeconds;
         } 
         else if(_ballPosition.Y < _enemyPaddlePosition.Y)
         {
-            _enemyPaddlePosition.Y -= ENEMY_PADDLE_SPEED;
+            _enemyPaddlePosition.Y -= ENEMY_PADDLE_SPEED * (float)gameTime.ElapsedGameTime.TotalSeconds;
         }
 
         _enemyPaddlePosition.Y = MathHelper.Clamp(_enemyPaddlePosition.Y, 0, GraphicsDevice.PresentationParameters.BackBufferHeight - _enemyPaddle.Height * ENEMY_PADDLE_SCALE);
