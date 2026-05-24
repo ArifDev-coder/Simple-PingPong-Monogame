@@ -20,7 +20,7 @@ public class Game1 : Game
     private Vector2 _ballPosition;
     private Circle _ballBounds;
     private Vector2 _ballMove;
-    private float BALL_SPEED = 20f;
+    private float BALL_SPEED = 10f;
     private float BALL_SCALE = 3f;
 
     // Fonts
@@ -73,7 +73,7 @@ public class Game1 : Game
 
         _ballPosition = new Vector2(GraphicsDevice.PresentationParameters.BackBufferWidth * .5f, GraphicsDevice.PresentationParameters.BackBufferHeight * .5f);
 
-        _scorePosition = new Vector2(GraphicsDevice.PresentationParameters.BackBufferWidth * 0.5f, GraphicsDevice.PresentationParameters.BackBufferHeight * 0.5f);
+        _scorePosition = new Vector2(GraphicsDevice.PresentationParameters.BackBufferWidth * 0.5f, 50);
 
         Vector2 fontLength = _robotoFont.MeasureString("0 : 0");
 
@@ -110,7 +110,7 @@ public class Game1 : Game
         if (gamePad.Buttons.Back == ButtonState.Pressed || keyboardState.IsKeyDown(Keys.Escape))
             Exit();
 
-        Vector2 fontLength = _robotoFont.MeasureString("0 : 0");
+        Vector2 fontLength = _robotoFont.MeasureString($"{_playerScore} : {_enemyScore}");
         _scoreOrigin = new Vector2(fontLength.X * 0.5f, fontLength.Y * 0.5f);
 
         if (keyboardState.IsKeyDown(Keys.A) || keyboardState.IsKeyDown(Keys.W))
@@ -208,54 +208,69 @@ public class Game1 : Game
 
         if (_ballBounds.Intersects(_enemyPaddleBounds))
         {
-            float overlapLeft = _ballBounds.Right - _enemyPaddleBounds.Left;
-            float overlapRight = _enemyPaddleBounds.Right - _ballBounds.Left;
-            float overlapTop = _ballBounds.Bottom - _enemyPaddleBounds.Top;
-            float overlapBottom = _enemyPaddleBounds.Bottom - _ballBounds.Top;
+            // float overlapLeft = _ballBounds.Right - _enemyPaddleBounds.Left;
+            // float overlapRight = _enemyPaddleBounds.Right - _ballBounds.Left;
+            // float overlapTop = _ballBounds.Bottom - _enemyPaddleBounds.Top;
+            // float overlapBottom = _enemyPaddleBounds.Bottom - _ballBounds.Top;
 
-            float minOverlap = Math.Min(
-                Math.Min(overlapLeft, overlapRight),
-                Math.Min(overlapTop, overlapBottom)
-            );
+            float paddleCenterY = _enemyPaddlePosition.Y + (_enemyPaddle.Height * ENEMY_PADDLE_SCALE) / 2;
+            float ballCenterY = newBallPosition.Y + (_ball.Height * BALL_SCALE) / 2;
+            float halfHeight = (_enemyPaddle.Height * ENEMY_PADDLE_SCALE) / 2;
+            float t = Math.Clamp((ballCenterY - paddleCenterY) / halfHeight, -1f, 1f);
+            float angle = t * MathF.PI / 3;
 
-            if (minOverlap == overlapLeft)
-                normal.X = -Vector2.UnitX.X;
-            else if (minOverlap == overlapRight)
-                normal.X = Vector2.UnitX.X;
-            else if (minOverlap == overlapTop)
-                normal.Y = -Vector2.UnitY.Y;
-            else
-                normal.Y = Vector2.UnitY.Y;
+            // float minOverlap = Math.Min(
+            //     Math.Min(overlapLeft, overlapRight),
+            //     Math.Min(overlapTop, overlapBottom)
+            // );
 
-            normal.Normalize();
-            _ballMove = Vector2.Reflect(_ballMove, normal);
+            // if (minOverlap == overlapLeft)
+            //     normal.X = -Vector2.UnitX.X;
+            // else if (minOverlap == overlapRight)
+            //     normal.X = Vector2.UnitX.X;
+            // else if (minOverlap == overlapTop)
+            //     normal.Y = -Vector2.UnitY.Y;
+            // else
+            //     normal.Y = Vector2.UnitY.Y;
+
+            // normal.Normalize();
+            // _ballMove = Vector2.Reflect(_ballMove, normal);
+            _ballMove = new Vector2(-MathF.Cos(angle), MathF.Sin(angle)) * BALL_SPEED;
 
             return;
         }
 
         if (_ballBounds.Intersects(_playerPaddleBounds))
         {
-            float overlapLeft = _ballBounds.Right - _playerPaddleBounds.Left;
-            float overlapRight = _playerPaddleBounds.Right - _ballBounds.Left;
-            float overlapTop = _ballBounds.Bottom - _playerPaddleBounds.Top;
-            float overlapBottom = _playerPaddleBounds.Bottom - _ballBounds.Top;
+            // float overlapLeft = _ballBounds.Right - _playerPaddleBounds.Left;
+            // float overlapRight = _playerPaddleBounds.Right - _ballBounds.Left;
+            // float overlapTop = _ballBounds.Bottom - _playerPaddleBounds.Top;
+            // float overlapBottom = _playerPaddleBounds.Bottom - _ballBounds.Top;
 
-            float minOverlap = Math.Min(
-                Math.Min(overlapLeft, overlapRight),
-                Math.Min(overlapTop, overlapBottom)
-            );
+            float paddleCenterY = _playerPaddlePosition.Y + (_playerPaddle.Height * PLAYER_PADDLE_SCALE) * 0.5f;
+            float ballCenterY = newBallPosition.Y + (_ball.Height * BALL_SCALE) * 0.5f;
+            float halfHeight = (_playerPaddle.Height * PLAYER_PADDLE_SCALE) * 0.5f;
+            float t = Math.Clamp((ballCenterY - paddleCenterY) / halfHeight, -1f, 1f);
+            float angle = t * MathF.PI / 3;
 
-            if (minOverlap == overlapLeft)
-                normal.X = -Vector2.UnitX.X;
-            else if (minOverlap == overlapRight)
-                normal.X = Vector2.UnitX.X;
-            else if (minOverlap == overlapTop)
-                normal.Y = -Vector2.UnitY.Y;
-            else
-                normal.Y = Vector2.UnitY.Y;
+            // float minOverlap = Math.Min(
+            //     Math.Min(overlapLeft, overlapRight),
+            //     Math.Min(overlapTop, overlapBottom)
+            // );
 
-            normal.Normalize();
-            _ballMove = Vector2.Reflect(_ballMove, normal);
+            // if (minOverlap == overlapLeft)
+            //     normal.X = -Vector2.UnitX.X;
+            // else if (minOverlap == overlapRight)
+            //     normal.X = Vector2.UnitX.X;
+            // else if (minOverlap == overlapTop)
+            //     normal.Y = -Vector2.UnitY.Y;
+            // else
+            //     normal.Y = Vector2.UnitY.Y;
+
+            // normal.Normalize();
+            // _ballMove = Vector2.Reflect(_ballMove, normal);
+
+            _ballMove = new Vector2(MathF.Cos(angle), MathF.Sin(angle)) * BALL_SPEED;
 
             return;
         }
