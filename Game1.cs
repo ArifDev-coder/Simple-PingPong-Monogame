@@ -110,6 +110,8 @@ public class Game1 : Game
         if (gamePad.Buttons.Back == ButtonState.Pressed || keyboardState.IsKeyDown(Keys.Escape))
             Exit();
 
+        Vector2 fontLength = _robotoFont.MeasureString("0 : 0");
+        _scoreOrigin = new Vector2(fontLength.X * 0.5f, fontLength.Y * 0.5f);
 
         if (keyboardState.IsKeyDown(Keys.A) || keyboardState.IsKeyDown(Keys.W))
         {
@@ -312,10 +314,16 @@ public class Game1 : Game
 
     private void RandomBallMove()
     {
-        float angle = (float)(Random.Shared.NextDouble() * Math.PI * 2);
+        float maxAngle = MathF.PI / 3;
+        float angle = (float)(Random.Shared.NextDouble() * 2 * maxAngle) - maxAngle;
 
-        float x = (float)Math.Cos(angle);
-        float y = (float)Math.Sin(angle);
+        if (Random.Shared.Next(2) == 0)
+        {
+            angle += MathF.PI;
+        }
+
+        float x = (float)MathF.Cos(angle);
+        float y = (float)MathF.Sin(angle);
         Vector2 direction = new(x, y);
 
         _ballMove = direction * BALL_SPEED;
@@ -323,7 +331,7 @@ public class Game1 : Game
 
     protected override void Draw(GameTime gameTime)
     {
-        GraphicsDevice.Clear(Color.CornflowerBlue);
+        GraphicsDevice.Clear(Color.Black);
 
         _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
 
