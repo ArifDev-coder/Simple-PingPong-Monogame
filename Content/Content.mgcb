@@ -13,6 +13,16 @@
 
 #---------------------------------- Content ---------------------------------#
 
+#begin fonts/Roboto.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:fonts/Roboto.spritefont
+
+#begin fonts/Roboto.ttf
+/copy:fonts/Roboto.ttf
+
 #begin texture/ball.png
 /importer:TextureImporter
 /processor:TextureProcessor

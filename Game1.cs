@@ -20,8 +20,15 @@ public class Game1 : Game
     private Vector2 _ballPosition;
     private Circle _ballBounds;
     private Vector2 _ballMove;
-    private float BALL_SPEED = 10f;
+    private float BALL_SPEED = 20f;
     private float BALL_SCALE = 3f;
+
+    // Fonts
+    private SpriteFont _robotoFont;
+    private int _playerScore;
+    private int _enemyScore;
+    private Vector2 _scorePosition;
+    private Vector2 _scoreOrigin;
 
     // Player Paddle
     private Texture2D _playerPaddle;
@@ -30,6 +37,7 @@ public class Game1 : Game
     private float PLAYER_PADDLE_SPEED = 5f;
     private float PLAYER_PADDLE_SCALE = 4f;
 
+    // Enemy Paddle
     private Texture2D _enemyPaddle;
     private Vector2 _enemyPaddlePosition;
     private Rectangle _enemyPaddleBounds;
@@ -56,11 +64,20 @@ public class Game1 : Game
     {
         base.Initialize();
 
+        _enemyScore = 0;
+        _playerScore = 0;
+
         _playerPaddlePosition = new Vector2(10, (GraphicsDevice.PresentationParameters.BackBufferHeight - _playerPaddle.Height * PLAYER_PADDLE_SCALE) * 0.5f);
 
         _enemyPaddlePosition = new Vector2(GraphicsDevice.PresentationParameters.BackBufferWidth - (_enemyPaddle.Width * ENEMY_PADDLE_SCALE + 10), (GraphicsDevice.PresentationParameters.BackBufferHeight - _enemyPaddle.Height * ENEMY_PADDLE_SCALE) * 0.5f);
 
         _ballPosition = new Vector2(GraphicsDevice.PresentationParameters.BackBufferWidth * .5f, GraphicsDevice.PresentationParameters.BackBufferHeight * .5f);
+
+        _scorePosition = new Vector2(GraphicsDevice.PresentationParameters.BackBufferWidth * 0.5f, GraphicsDevice.PresentationParameters.BackBufferHeight * 0.5f);
+
+        Vector2 fontLength = _robotoFont.MeasureString("0 : 0");
+
+        _scoreOrigin = new Vector2(fontLength.X * 0.5f, fontLength.Y * 0.5f);
 
         _screenBounds = new Rectangle(
             0,
@@ -81,6 +98,8 @@ public class Game1 : Game
         _playerPaddle = Content.Load<Texture2D>("texture/bet");
 
         _enemyPaddle = Content.Load<Texture2D>("texture/bet");
+
+        _robotoFont = Content.Load<SpriteFont>("fonts/Roboto");
     }
 
     protected override void Update(GameTime gameTime)
@@ -101,6 +120,23 @@ public class Game1 : Game
             _playerPaddlePosition.Y += PLAYER_PADDLE_SPEED;
         }
 
+        // if (keyboardState.IsKeyDown(Keys.A) || keyboardState.IsKeyDown(Keys.Left))
+        // {
+        //     _playerPaddlePosition.Y -= PLAYER_PADDLE_SPEED;
+        // }
+        // else if (keyboardState.IsKeyDown(Keys.D) || keyboardState.IsKeyDown(Keys.Right))
+        // {
+        //     _playerPaddlePosition.Y += PLAYER_PADDLE_SPEED;
+        // }
+        // else if (keyboardState.IsKeyDown(Keys.A))
+        // {
+        //     _playerPaddlePosition.X -= PLAYER_PADDLE_SPEED;
+        // }
+        // else if (keyboardState.IsKeyDown(Keys.D))
+        // {
+        //     _playerPaddlePosition.X += PLAYER_PADDLE_SPEED;
+        // }
+
         _playerPaddlePosition.Y = MathHelper.Clamp(_playerPaddlePosition.Y, 0, GraphicsDevice.PresentationParameters.BackBufferHeight - _playerPaddle.Height * PLAYER_PADDLE_SCALE);
 
         EnemyAI();
@@ -110,16 +146,35 @@ public class Game1 : Game
         base.Update(gameTime);
     }
 
-    private void EnemyAI() 
-    {   
+    private void EnemyAI()
+    {
         if (_ballPosition.Y > _enemyPaddlePosition.Y)
         {
             _enemyPaddlePosition.Y += ENEMY_PADDLE_SPEED;
-        } 
-        else if(_ballPosition.Y < _enemyPaddlePosition.Y)
+        }
+        else if (_ballPosition.Y < _enemyPaddlePosition.Y)
         {
             _enemyPaddlePosition.Y -= ENEMY_PADDLE_SPEED;
         }
+
+        // GamePadState gamePad = GamePad.GetState(PlayerIndex.One);
+        // KeyboardState keyboardState = Keyboard.GetState();
+
+        // if (keyboardState.IsKeyDown(Keys.Left))
+        // {
+        //     _enemyPaddlePosition.Y -= ENEMY_PADDLE_SPEED;
+        // }
+        // else if (keyboardState.IsKeyDown(Keys.Right))
+        // {
+        // }
+        // else if (keyboardState.IsKeyDown(Keys.Right))
+        // {
+        //     _enemyPaddlePosition.X += ENEMY_PADDLE_SPEED;
+        // }
+        // else if (keyboardState.IsKeyDown(Keys.Left))
+        // {
+        //     _enemyPaddlePosition.X -= ENEMY_PADDLE_SPEED;
+        // }
 
         _enemyPaddlePosition.Y = MathHelper.Clamp(_enemyPaddlePosition.Y, 0, GraphicsDevice.PresentationParameters.BackBufferHeight - _enemyPaddle.Height * ENEMY_PADDLE_SCALE);
     }
@@ -213,6 +268,9 @@ public class Game1 : Game
             RandomBallMove();
 
             _ballPosition = newBallPosition;
+
+            _enemyScore += 1;
+
             return;
         }
         else if (_ballBounds.Right > _screenBounds.Right)
@@ -225,6 +283,9 @@ public class Game1 : Game
             RandomBallMove();
 
             _ballPosition = newBallPosition;
+
+            _playerScore += 1;
+
             return;
         }
 
@@ -265,6 +326,8 @@ public class Game1 : Game
         GraphicsDevice.Clear(Color.CornflowerBlue);
 
         _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+
+        _spriteBatch.DrawString(_robotoFont, $"{_playerScore} : {_enemyScore}", _scorePosition, Color.White, 0.0f, _scoreOrigin, 1.0f, SpriteEffects.None, 0.0f);
 
         _spriteBatch.Draw(_ball, _ballPosition, null, Color.White, 0.0f, Vector2.Zero, BALL_SCALE, SpriteEffects.None, 0.0f);
 
